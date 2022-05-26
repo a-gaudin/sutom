@@ -15,54 +15,55 @@ def get_words(filename):
 def get_words_matching_pattern(words_df, pattern):
     return words_df.loc[words_df["words"].str.match(pattern, case=False)]
 
-def create_regex_pattern(inputs, outputs):
-    pattern = '(?='
-    wrong_letters = []
-    misplaced_letters = []
-
+def get_outputs_summary(inputs, outputs):
     nth_characters = list(zip(*outputs))
 
+    outputs_summary = []
+
     for i, nth_character in enumerate(nth_characters):
+        outputs_summary.append({"good": [], "wrong": [], "misplaced": []})
+
         for j, character in enumerate(nth_character):
             letter = inputs[j][i]
 
             if character == 'g':
-                pattern += letter
+                outputs_summary["good"].append(letter)
             elif character == 'w':
-                wrong_letters.append(letter)
+                outputs_summary["wrong"].append(letter)
             elif character == 'm':
-                misplaced_letters.append(letter)
-            
-        if 'g' not in nth_character:
-            pattern += '[a-z]'
+                outputs_summary["misplaced"].append(letter)
     
-    pattern +=  ')'
+    return outputs_summary
+    
+# def create_regex_pattern(outputs_summary):
+#     pattern = '(?='
 
-    for misplaced_letter in misplaced_letters:
-        pattern += '(?=.*' + misplaced_letter + '.*)'
+#     for 
+    
+#     pattern +=  ')'
+
+#     for misplaced_letter in misplaced_letters:
+#         pattern += '(?=.*' + misplaced_letter + '.*)'
     
 
-    print('wrong letters: ', wrong_letters)
-    print('misplaced letters: ', misplaced_letters)
+#     print('wrong letters: ', wrong_letters)
+#     print('misplaced letters: ', misplaced_letters)
 
-    # for i in range(len(output)):
-    #     if output[i] == 'g':
-    #         pattern.append(input[i])
-    #     elif output[i] == 'm':
-    #         pattern.append('[^' + input[i] + ']')
-    #         misplaced_letters.append(input[i])
-    #     elif output[i] == 'w':
-    #         wrong_letters.append(input[i])
+#     # for i in range(len(output)):
+#     #     if output[i] == 'g':
+#     #         pattern.append(input[i])
+#     #     elif output[i] == 'm':
+#     #         pattern.append('[^' + input[i] + ']')
+#     #         misplaced_letters.append(input[i])
+#     #     elif output[i] == 'w':
+#     #         wrong_letters.append(input[i])
 
-    # for misplaced_letter in misplaced_letters:
-    #     pattern.append('(?=.*' + misplaced_letter + '.*)')
+#     # for misplaced_letter in misplaced_letters:
+#     #     pattern.append('(?=.*' + misplaced_letter + '.*)')
 
-    return pattern
+#     return pattern
 
 def main():
-    # data = {'words':['slope', 'stove', 'store', 'stone', 'stena']}
-    # words_df = pd.DataFrame(data)
-
     # regex_pattern = '(?=s[^wy][a-z][a-z]e)(?=.*r.*)(?=.*t.*)'
 
     # input_ = input("Fill in the input, replace missing letters by *, e.g. t*rtu*: ")
@@ -77,9 +78,10 @@ def main():
     output = 'ggwgwwg'
     outputs = [output]
 
-    regex_pattern = create_regex_pattern(inputs, outputs)
-    print(regex_pattern)
+    outputs_summary = get_outputs_summary(inputs, outputs)
+    # regex_pattern = create_regex_pattern(outputs_summary)
+    # print(regex_pattern)
 
-    words_left_df = get_words_matching_pattern(words_df, regex_pattern)
-    print(words_left_df)
+    # words_left_df = get_words_matching_pattern(words_df, regex_pattern)
+    # print(words_left_df)
 main()
