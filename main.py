@@ -1,21 +1,20 @@
 from black import out
 import pandas as pd
 
-def check_inputs(tested_inputs):
-    for tested_input in tested_inputs:
-        if (len(tested_input) < 4 or len(tested_input) > 12):
-            raise Exception("This program only handles inputs from 4 to 12 letters")
+def check_inputs(input_, output):
+    if len(input_) != len(output):
+        raise ValueError("Inputs and Outputs should be the same length") 
+    
+    if (len(input_) < 4 or len(input_) > 12):
+        raise ValueError("This program only handles inputs from 4 to 12 letters")
+            
+def get_dictionary(filename):
+    dictionary_df = pd.read_csv(filename, sep=" ", header=None)
+    dictionary_df.columns = ["words"]
+    return dictionary_df
 
-def get_words(filename):
-    words_df = pd.read_csv(filename, sep=" ", header=None)
-    words_df.columns = ["words"]
-    return words_df
-
-def get_words_matching_pattern(words_df, pattern):
-    return words_df.loc[words_df["words"].str.match(pattern, case=False)]
-
-def df_column_to_list(df_column):
-    return list(filter(None, df_column.tolist()))
+def get_matching_words(dictionary_df, pattern):
+    return dictionary_df.loc[dictionary_df["words"].str.match(pattern, case=False)]
 
 def get_history(inputs, outputs):
     outputs_transposed = list(zip(*outputs))
@@ -39,10 +38,10 @@ def get_history(inputs, outputs):
     
     return history
 
-def get_all_letters_in_group(history, group):
+def get_letters_in_category(history, category):
     letters = ''
     for row in history:
-        letters += row[group]
+        letters += row[category]
     return letters
 
 def create_regex_pattern(history, wrongs, misplaced):
@@ -65,28 +64,25 @@ def main():
     # New request
     input_ = input("Fill in the input, replace missing letters by *, e.g. t*rtu*: ")
     output = input("Fill in the result code (good g, misplaced m, wrong g), e.g. gwgggm: ")
-    check_inputs([input_, output])
+    check_inputs(input_, output)
 
     # Store results for each iteration
     inputs.append(input_)
     outputs.append(output)
 
-    # input_ = "voiture"
-    # inputs = ["voiture", "voilage", "voitage", "voivage"]
-    # outputs = ["ggwgwwg", "ggwmggg", "ggwgggg", "ggwmggg"]
-
     # Loading appropriate dictionary
-    words_df = get_words(f"data/mots_{len(input_)}.txt")
+    dictionary_df = get_dictionary(f"data/mots_{len(input_)}.txt")
     
     # Compile results into a list of dictionaries (history)
     history = get_history(inputs, outputs)
-    wrongs = get_all_letters_in_group(history, "wrong")
-    misplaced = get_all_letters_in_group(history, "misplaced")
+    wrongs = get_letters_in_category(history, "wrong")
+    misplaced = get_letters_in_category(history, "misplaced")
 
     # Search for matching words in dictionary
     regex_pattern = create_regex_pattern(history, wrongs, misplaced)
-    words_left_df = get_words_matching_pattern(words_df, regex_pattern)
-    print(words_left_df)
+    matching_words = get_matching_words(dictionary_df, regex_pattern)
+    print(f"{len(matching_words)} words left:")
+    print(matching_words.to_string())
 
     # Recursion for new requests
     main()
@@ -94,5 +90,5 @@ def main():
 # Initialization of request results
 inputs = []
 outputs = []
-words_left_df = pd.DataFrame()
+matching_words = pd.DataFrame()
 main()
