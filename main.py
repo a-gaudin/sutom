@@ -1,12 +1,10 @@
 from black import out
 import pandas as pd
 
-def check_input(inputs):
-    last_input = inputs[-1]
-    last_input_length = len(last_input)
-
-    if (last_input_length < 4 or last_input_length > 12):
-        raise Exception("This program only handles inputs from 4 to 12 letters")
+def check_inputs(tested_inputs):
+    for tested_input in tested_inputs:
+        if (len(tested_input) < 4 or len(tested_input) > 12):
+            raise Exception("This program only handles inputs from 4 to 12 letters")
 
 def get_words(filename):
     words_df = pd.read_csv(filename, sep=" ", header=None)
@@ -64,23 +62,37 @@ def create_regex_pattern(history, wrongs, misplaced):
     return pattern
 
 def main():
-    # input_ = input("Fill in the input, replace missing letters by *, e.g. t*rtu*: ")
-    input_ = "voiture"
-    inputs = ["voiture", "voilage", "voitage", "voivage"]
-    
-    check_input(inputs)
-    words_df = get_words(f"data/mots_{len(input_)}.txt")
-    print(words_df)
-    
-    # output = input("Fill in the result code (good g, misplaced m, wrong g), e.g. gwgggm: ")
-    outputs = ["ggwgwwg", "ggwmggg", "ggwgggg", "ggwmggg"]
+    # New request
+    input_ = input("Fill in the input, replace missing letters by *, e.g. t*rtu*: ")
+    output = input("Fill in the result code (good g, misplaced m, wrong g), e.g. gwgggm: ")
+    check_inputs([input_, output])
 
+    # Store results for each iteration
+    inputs.append(input_)
+    outputs.append(output)
+
+    # input_ = "voiture"
+    # inputs = ["voiture", "voilage", "voitage", "voivage"]
+    # outputs = ["ggwgwwg", "ggwmggg", "ggwgggg", "ggwmggg"]
+
+    # Loading appropriate dictionary
+    words_df = get_words(f"data/mots_{len(input_)}.txt")
+    
+    # Compile results into a list of dictionaries (history)
     history = get_history(inputs, outputs)
     wrongs = get_all_letters_in_group(history, "wrong")
     misplaced = get_all_letters_in_group(history, "misplaced")
-    regex_pattern = create_regex_pattern(history, wrongs, misplaced)
-    print(regex_pattern)
 
+    # Search for matching words in dictionary
+    regex_pattern = create_regex_pattern(history, wrongs, misplaced)
     words_left_df = get_words_matching_pattern(words_df, regex_pattern)
     print(words_left_df)
+
+    # Recursion for new requests
+    main()
+
+# Initialization of request results
+inputs = []
+outputs = []
+words_left_df = pd.DataFrame()
 main()
