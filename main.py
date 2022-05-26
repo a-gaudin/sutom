@@ -1,3 +1,4 @@
+from black import out
 import pandas as pd
 
 def check_input(inputs):
@@ -15,73 +16,71 @@ def get_words(filename):
 def get_words_matching_pattern(words_df, pattern):
     return words_df.loc[words_df["words"].str.match(pattern, case=False)]
 
-def get_outputs_summary(inputs, outputs):
-    nth_characters = list(zip(*outputs))
+def df_column_to_list(df_column):
+    return list(filter(None, df_column.tolist()))
 
-    outputs_summary = []
+def get_history(inputs, outputs):
+    outputs_transposed = list(zip(*outputs))
 
-    for i, nth_character in enumerate(nth_characters):
-        outputs_summary.append({"good": [], "wrong": [], "misplaced": []})
+    history = []
+
+    for i, nth_character in enumerate(outputs_transposed):
+        output_summary = {"good": '', "wrong": '', "misplaced": ''}
 
         for j, character in enumerate(nth_character):
             letter = inputs[j][i]
 
-            if character == 'g':
-                outputs_summary["good"].append(letter)
-            elif character == 'w':
-                outputs_summary["wrong"].append(letter)
-            elif character == 'm':
-                outputs_summary["misplaced"].append(letter)
+            if character == 'g' and letter not in output_summary["good"]:
+                output_summary["good"] = letter
+            elif character == 'w' and letter not in output_summary["wrong"]:
+                output_summary["wrong"] += letter
+            elif character == 'm' and letter not in output_summary["misplaced"]:
+                output_summary["misplaced"] += letter
+
+        history.append(output_summary)
     
-    return outputs_summary
+    return history
+
+def get_all_letters_in_group(history, group):
+    letters = ''
+    for row in history:
+        letters += row[group]
+    return letters
+
+def create_regex_pattern(history, wrongs, misplaced):
+    pattern = '(?='
+
+    for row in history:
+        if row["good"]:
+            pattern += row["good"][0]
+        else:
+            pattern += '[^' + wrongs + "".join(row["misplaced"]) + ']'
     
-# def create_regex_pattern(outputs_summary):
-#     pattern = '(?='
+    pattern += ')'
 
-#     for 
-    
-#     pattern +=  ')'
+    for misplaced_letter in misplaced:
+        pattern += '(?=.*' + misplaced_letter + '.*)'
 
-#     for misplaced_letter in misplaced_letters:
-#         pattern += '(?=.*' + misplaced_letter + '.*)'
-    
-
-#     print('wrong letters: ', wrong_letters)
-#     print('misplaced letters: ', misplaced_letters)
-
-#     # for i in range(len(output)):
-#     #     if output[i] == 'g':
-#     #         pattern.append(input[i])
-#     #     elif output[i] == 'm':
-#     #         pattern.append('[^' + input[i] + ']')
-#     #         misplaced_letters.append(input[i])
-#     #     elif output[i] == 'w':
-#     #         wrong_letters.append(input[i])
-
-#     # for misplaced_letter in misplaced_letters:
-#     #     pattern.append('(?=.*' + misplaced_letter + '.*)')
-
-#     return pattern
+    return pattern
 
 def main():
-    # regex_pattern = '(?=s[^wy][a-z][a-z]e)(?=.*r.*)(?=.*t.*)'
-
     # input_ = input("Fill in the input, replace missing letters by *, e.g. t*rtu*: ")
-    input_ = 'voiture'
-    inputs = [input_]
+    input_ = "voiture"
+    inputs = ["voiture", "voilage", "voitage", "voivage"]
     
     check_input(inputs)
     words_df = get_words(f"data/mots_{len(input_)}.txt")
     print(words_df)
     
     # output = input("Fill in the result code (good g, misplaced m, wrong g), e.g. gwgggm: ")
-    output = 'ggwgwwg'
-    outputs = [output]
+    outputs = ["ggwgwwg", "ggwmggg", "ggwgggg", "ggwmggg"]
 
-    outputs_summary = get_outputs_summary(inputs, outputs)
-    # regex_pattern = create_regex_pattern(outputs_summary)
-    # print(regex_pattern)
+    history = get_history(inputs, outputs)
+    wrongs = get_all_letters_in_group(history, "wrong")
+    misplaced = get_all_letters_in_group(history, "misplaced")
+    regex_pattern = create_regex_pattern(history, wrongs, misplaced)
+    print(regex_pattern)
 
-    # words_left_df = get_words_matching_pattern(words_df, regex_pattern)
-    # print(words_left_df)
+    words_left_df = get_words_matching_pattern(words_df, regex_pattern)
+    print(words_left_df)
 main()
