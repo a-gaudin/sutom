@@ -3,7 +3,7 @@ import pandas as pd
 
 def check_inputs(word, colors):
     if len(word) != len(colors):
-        raise ValueError("Words and Outputs should be the same length") 
+        raise ValueError("Word and Colors should be the same length") 
     
     if (len(word) < 4 or len(word) > 12):
         raise ValueError("This program only handles words from 4 to 12 letters")
@@ -46,8 +46,7 @@ def get_letters_in_category(history, category):
     return letters
 
 def create_regex_pattern(history, wrongs, yellows):
-    # Returns a regex pattern, e.g.
-    # '(?=v[^t][^ti]e)(?=.*a.*)(?=.*s.*)'
+    # Returns a regex pattern, e.g. '(?=v[^t][^ti]e)(?=.*a.*)(?=.*s.*)'
     # It translates as: 1st letter is 'v', 2nd is not 't', 3rd is not 't' or 'i', 4 th is 'e'. 'a' and 's' should be found somewhere
     pattern = '(?='
 
@@ -69,8 +68,8 @@ def get_matching_words(dictionary_df, pattern):
 
 def main():
     # New request
-    word = input("Fill in the input, replace missing letters by *, e.g. t*rtu*: ")
-    colors = input("Fill in the result code (reds g, yellows m, blues g), e.g. gwgggm: ")
+    word = input("Word: ")
+    colors = input("Colors: ")
     check_inputs(word, colors)
 
     # Store results for each iteration
@@ -94,7 +93,14 @@ def main():
     # Recursion for new requests
     main()
 
-# Initialization of request results
+# Initialization
+print("""
+    Sutom solver (https://sutom.nocle.fr/)
+
+    Instructions:
+    1. Fill in the 'Word' input, i.e. the tentative French word (e.g. 'vite')
+    2. Fill in the 'Colors' input, i.e. the result's color transcription (e.g. 'rbbr' where 'r' is red (right), 'b' is blue (wrong), 'y' is yellow (wrong spot))
+    """)
 all_words = []
 all_colors = []
 matching_words = pd.DataFrame()
