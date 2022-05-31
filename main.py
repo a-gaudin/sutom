@@ -4,13 +4,13 @@ import pandas as pd
 def check_inputs(word, colors):
     if len(word) != len(colors):
         raise ValueError("Word and Colors should be the same length") 
-    
+
     if (len(word) < 4 or len(word) > 12):
         raise ValueError("This program only handles words from 4 to 12 letters")
-            
+
 def get_dictionary(filename):
-    # Get a dictionary for the word's length. Each dictionary has 4096 words sorted by popularity
-    # Returns a single-column dataframe
+    """Get a dictionary for the word's length. Each dictionary has 4096 words sorted by popularity
+    Returns a single-column dataframe"""
     dictionary_df = pd.read_csv(filename, sep=" ", header=None)
     dictionary_df.columns = ["words"]
     return dictionary_df
@@ -36,7 +36,7 @@ def create_history(all_words, all_colors):
                 history_nth_letter["yellows"] += letter
 
         history.append(history_nth_letter)
-    
+
     return history
 
 def get_letters_in_category(history, category):
@@ -46,8 +46,8 @@ def get_letters_in_category(history, category):
     return letters
 
 def create_regex_pattern(history, wrongs, yellows):
-    # Returns a regex pattern, e.g. '(?=v[^t][^ti]e)(?=.*a.*)(?=.*s.*)'
-    # It translates as: 1st letter is 'v', 2nd is not 't', 3rd is not 't' or 'i', 4 th is 'e'. 'a' and 's' should be found somewhere
+    """Returns a regex pattern, e.g. '(?=v[^t][^ti]e)(?=.*a.*)(?=.*s.*)'
+    It translates as: 1st letter is 'v', 2nd is not 't', 3rd is not 't' or 'i', 4 th is 'e'. 'a' and 's' should be found somewhere"""
     pattern = '(?='
 
     for row in history:
@@ -55,7 +55,7 @@ def create_regex_pattern(history, wrongs, yellows):
             pattern += row["reds"][0]
         else:
             pattern += '[^' + wrongs + ''.join(row["yellows"]) + ']'
-    
+
     pattern += ')'
 
     for yellow in yellows:
@@ -74,7 +74,7 @@ def main():
     1. Fill in the 'Word' input, i.e. the tentative French word (e.g. 'vite')
     2. Fill in the 'Colors' input, i.e. the result's color transcription (e.g. 'rbbr' where 'r' is red (right), 'b' is blue (wrong), 'y' is yellow (wrong spot))
     """)
-    
+
     all_words = []
     all_colors = []
 
@@ -91,7 +91,7 @@ def main():
         # Loading appropriate dictionary
         dictionary_path = os.path.join(os.path.dirname(__file__), f"data/mots_{len(word)}.txt")
         dictionary_df = get_dictionary(dictionary_path)
-        
+
         # Compile results into a list of dictionaries (history)
         history = create_history(all_words, all_colors)
         wrongs = get_letters_in_category(history, "blues")
