@@ -9,15 +9,15 @@ def check_inputs(word, colors):
         raise ValueError("This program only handles words from 4 to 12 letters")
 
 def get_dictionary(filename):
-    """Get a dictionary for the word's length. Each dictionary has 4096 words sorted by popularity
-    Returns a single-column dataframe"""
+    """ Get a dictionary for the word's length. Each dictionary has 4096 words sorted by popularity
+    Returns a single-column dataframe """
     dictionary_df = pd.read_csv(filename, sep=" ", header=None)
     dictionary_df.columns = ["words"]
     return dictionary_df
 
 def create_history(all_words, all_colors):
-    # Returns a list of dictionaries, e.g.:
-    #[{'reds': 'v', 'blues': 't', 'yellows': 'a'}, {'reds': '', 'blues': 'oei', 'yellows': ''}, {'reds': '', 'blues': 'ltr', 'yellows': ''}, {'reds': 'e', 'blues': '', 'yellows': ''}]
+    """ Returns a list of dictionaries, e.g.:
+    [{'reds': 'v', 'blues': 't', 'yellows': 'a'}, {'reds': '', 'blues': 'oei', 'yellows': ''}, {'reds': '', 'blues': 'ltr', 'yellows': ''}, {'reds': 'e', 'blues': '', 'yellows': ''}] """
     colors_transposed = list(zip(*all_colors))
 
     history = []
@@ -46,8 +46,8 @@ def get_letters_in_category(history, category):
     return letters
 
 def create_regex_pattern(history, wrongs, yellows):
-    """Returns a regex pattern, e.g. '(?=v[^t][^ti]e)(?=.*a.*)(?=.*s.*)'
-    It translates as: 1st letter is 'v', 2nd is not 't', 3rd is not 't' or 'i', 4 th is 'e'. 'a' and 's' should be found somewhere"""
+    """ Returns a regex pattern, e.g. '(?=v[^t][^ti]e)(?=.*a.*)(?=.*s.*)'
+    It translates as: 1st letter is 'v', 2nd is not 't', 3rd is not 't' or 'i', 4 th is 'e'. 'a' and 's' should be found somewhere """
     pattern = '(?='
 
     for row in history:
@@ -103,4 +103,5 @@ def main():
         print(f"{len(matching_words)} words left:")
         print(matching_words.to_string())
 
-main()
+if __name__ == "__main__":
+    main()
