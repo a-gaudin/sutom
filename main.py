@@ -39,10 +39,21 @@ def create_history(all_words, all_colors):
 
     return history
 
-def get_letters_in_category(history, category):
+def get_letters_for_color(history, color):
+    """ Returns a string of all the letters with a certain color """
     letters = ''
     for row in history:
-        letters += row[category]
+        letters += row[color]
+    return letters
+
+def remove_common_characters(string1, string2):
+    """ Returns string1 without the common characters from string2 """
+    return string1.translate(str.maketrans({e:None for e in set(string1).intersection(string2)}))
+
+def get_blues(history, yellows):
+    """ Returns a string of all the blue letters"""
+    letters = get_letters_for_color(history, 'blues')
+    letters = remove_common_characters(letters, yellows)
     return letters
 
 def create_regex_pattern(history, wrongs, yellows):
@@ -94,8 +105,8 @@ def main():
 
         # Compile results into a list of dictionaries (history)
         history = create_history(all_words, all_colors)
-        wrongs = get_letters_in_category(history, "blues")
-        yellows = get_letters_in_category(history, "yellows")
+        yellows = get_letters_for_color(history, 'yellows')
+        wrongs = get_blues(history, yellows)
 
         # Search for matching words in dictionary
         regex_pattern = create_regex_pattern(history, wrongs, yellows)
