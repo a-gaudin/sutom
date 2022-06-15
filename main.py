@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 
-def check_inputs(word: str, colors: str):
+def check_inputs(word: str, colors: str) -> None:
     """ Raise errors if inputs are incoherent or are not handled """
     if len(word) != len(colors):
         raise ValueError("Word and Colors should be the same length") 
