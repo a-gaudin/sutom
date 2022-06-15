@@ -1,5 +1,5 @@
 # Sutom
-Game solver for Sutom (https://sutom.nocle.fr/)
+Game solver for [Sutom](https://sutom.nocle.fr/)
 
 * Languages: Python
 * Library: Pandas
